@@ -72,11 +72,34 @@ I18nPlugin.prototype.apply = function(compiler) {
 
 /**
  *
- * @param {object}	localization
+ * @param {object}  localization
+ * @param {string}  string key
+ * @returns {*}
+ */
+function byString(object, stringKey) {
+    stringKey = stringKey.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    stringKey = stringKey.replace(/^\./, ''); // strip a leading dot
+
+    var keysArray = stringKey.split('.');
+    for (var i = 0, length = keysArray.length; i < length; ++i) {
+      var key = keysArray[i];
+        if (key in object) {
+          object = object[key];
+        } else {
+          return;
+        }
+    }
+
+    return object;
+}
+
+/**
+ *
+ * @param {object}  localization
  * @returns {Function}
  */
 function makeLocalizFunction(localization) {
-	return function localizFunction(key) {
-		return localization[key];
-	};
+  return function localizFunction(key) {
+    return byString(localization, key);
+  };
 }
